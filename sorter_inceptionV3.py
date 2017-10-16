@@ -76,6 +76,8 @@ class Sorter():
 
         validationImageGenerator = ImageDataGenerator(
             rescale = 1 / 255,
+            samplewise_std_normalization=True,
+            samplewise_center=True,
         )
 
         validation_generator = validationImageGenerator.flow_from_directory(
