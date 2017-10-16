@@ -5,7 +5,7 @@ from keras.models import Sequential, Model
 from keras.layers import Input, Dense, Dropout, Activation, Flatten
 from keras import optimizers
 from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, TensorBoard
 import numpy as np
 
 def main():
@@ -100,6 +100,11 @@ class Sorter():
             mode="auto",
         )
 
+        # define TensorBoard
+        tensorboard_callback = TensorBoard(
+            log_dir="./logs",
+        )
+
         # tuning
         history = model.fit_generator(
             train_generator,
@@ -107,7 +112,7 @@ class Sorter():
             nb_val_samples=n_val_samples,
             nb_epoch=n_epoch,
             validation_data=validation_generator,
-            callbacks=[early_stopping_callback],
+            callbacks=[early_stopping_callback, tensorboard_callback],
         )
 
         model.save_weights(self.weights_path)
