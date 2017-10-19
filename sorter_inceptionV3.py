@@ -24,7 +24,7 @@ class Sorter():
 
     n_epoch = 100
 
-    def __init__(self, classes=[], train_dir="", validation_dir="", weights_path="./inceptionv3_finetuning.h5"):
+    def __init__(self, classes=[], train_dir="", validation_dir="", weights_path="./inceptionv3_finetuning.h5", img_size=(300, 300)):
         if not hasattr(classes, "__iter__"):
             raise ValueError("classes には iterable なオブジェクトを与えてください")
         elif len(classes) < 1:
@@ -33,8 +33,9 @@ class Sorter():
         self.classes = classes
         self.train_dir = train_dir
         self.validation_dir = validation_dir
-
         self.weights_path = weights_path
+        self.img_rows = img_size[0]
+        self.img_cols = img_size[1]
 
     def train(self):
         if self.train_dir == "" or self.validation_dir == "":
