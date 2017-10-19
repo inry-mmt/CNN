@@ -60,8 +60,8 @@ class Sorter():
             samplewise_center=True,
             horizontal_flip=True,
             vertical_flip=True,
-            width_shift_range=0.05,
-            height_shift_range=0.05,
+#            width_shift_range=0.05,
+#            height_shift_range=0.05,
         )
 
         train_generator = trainImageGenerator.flow_from_directory(
@@ -112,7 +112,7 @@ class Sorter():
             nb_val_samples=n_val_samples,
             nb_epoch=n_epoch,
             validation_data=validation_generator,
-            callbacks=[early_stopping_callback, tensorboard_callback],
+            callbacks=[tensorboard_callback],
         )
 
         model.save_weights(self.weights_path)
