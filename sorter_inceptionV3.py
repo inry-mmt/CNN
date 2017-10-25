@@ -7,6 +7,8 @@ from keras import optimizers
 from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from keras.callbacks import EarlyStopping, TensorBoard
 import numpy as np
+from random import randint, random
+from matplotlib.colors import rgb_to_hsv, hsv_to_rgb
 
 def main():
     """
@@ -24,7 +26,7 @@ class Sorter():
 
     n_epoch = 100
 
-    def __init__(self, classes=[], train_dir="", validation_dir="", weights_path="./inceptionv3_finetuning.h5", img_size=(300, 300)):
+    def __init__(self, classes=[], train_dir="", validation_dir="", save_weights_path="./inceptionv3_finetuning.h5", finetuning_weights_path="", img_size=(300, 300)):
         if not hasattr(classes, "__iter__"):
             raise ValueError("classes には iterable なオブジェクトを与えてください")
         elif len(classes) < 1:
@@ -33,7 +35,8 @@ class Sorter():
         self.classes = classes
         self.train_dir = train_dir
         self.validation_dir = validation_dir
-        self.weights_path = weights_path
+        self.save_weights_path = save_weights_path
+        self.finetuning_weights_path = finetuning_weights_path
         self.img_rows = img_size[0]
         self.img_cols = img_size[1]
 
@@ -57,10 +60,11 @@ class Sorter():
 
         trainImageGenerator = ImageDataGenerator(
             rescale = 1 / 255,
-            samplewise_std_normalization=True,
-            samplewise_center=True,
+#            samplewise_std_normalization=True,
+#            samplewise_center=True,
             horizontal_flip=True,
             vertical_flip=True,
+            preprocessing_function=self._preprocess,
 #            width_shift_range=0.05,
 #            height_shift_range=0.05,
         )
@@ -72,13 +76,14 @@ class Sorter():
             classes=classes,
             class_mode='categorical',
             batch_size=batch_size,
-            shuffle=True
+            shuffle=True,
+#            save_to_dir="./generated_pic",
         )
 
         validationImageGenerator = ImageDataGenerator(
             rescale = 1 / 255,
-            samplewise_std_normalization=True,
-            samplewise_center=True,
+#            samplewise_std_normalization=True,
+#            samplewise_center=True,
         )
 
         validation_generator = validationImageGenerator.flow_from_directory(
@@ -91,7 +96,10 @@ class Sorter():
             shuffle=True
         )
 
-        model = self.model()
+        if self.finetuning_weights_path:
+            model = self.model(weights_path=self.finetuning_weights_path)
+        else:
+            model = self.model()
 
         # define callbacks
         early_stopping_callback = EarlyStopping(
@@ -113,10 +121,10 @@ class Sorter():
             nb_val_samples=n_val_samples,
             nb_epoch=n_epoch,
             validation_data=validation_generator,
-            callbacks=[tensorboard_callback],
+            callbacks=[tensorboard_callback, early_stopping_callback],
         )
 
-        model.save_weights(self.weights_path)
+        model.save_weights(self.save_weights_path)
 
     def detect(self, weights=None, filenames=[]):
         if weights is None:
@@ -198,6 +206,39 @@ class Sorter():
 
         return count
 
+    def _preprocess(self, tensor):
+        # ランダムに色味を変化
+        s_range = 0.2
+        v_range = 40
+
+        # HSVに変化 [0~1, 0~1, 0~255], dtype=float32
+        tensor_hsv = rgb_to_hsv(tensor)
+#        print("tensor_hsv {}".format(tensor_hsv))
+        tt = tensor_hsv.T
+        h = tt[0]
+        s = tt[1]
+        v = tt[2]
+
+        # 彩度を変化 -s_range ~ s_range の間
+        # clipして0 ~ 1の間からはみ出さないようにする
+        s = np.clip(s + (random() * (s_range * 2) - s_range), 0, 1)
+
+        # 明度を変化
+        v = np.clip(v + randint(-v_range, v_range), 0, 255)
+
+        rs = self.img_rows
+        cs = self.img_cols
+        tensor_hsv = np.concatenate(
+            (
+                h.reshape(1, rs, cs),
+                s.reshape(1, rs, cs),
+                v.reshape(1, rs, cs),
+            ),
+            axis=0).T
+
+        # 結果出力
+        result = hsv_to_rgb(tensor_hsv)
+        return result
 
 
 
