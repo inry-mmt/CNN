@@ -22,7 +22,7 @@ class Sorter():
     img_cols = 300
     # classes = ['empty', 'notempty']
     channels = 3
-    batch_size = 30
+    batch_size = 50
 
     n_epoch = 100
 
@@ -32,6 +32,7 @@ class Sorter():
         elif len(classes) < 1:
             raise ValueError("classes が空です")
 
+        self.__preloaded_model = None
         self.classes = classes
         self.train_dir = train_dir
         self.validation_dir = validation_dir
@@ -82,6 +83,7 @@ class Sorter():
 
         validationImageGenerator = ImageDataGenerator(
             rescale = 1 / 255,
+#            preprocessing_function=self._preprocess,
 #            samplewise_std_normalization=True,
 #            samplewise_center=True,
         )
@@ -104,7 +106,7 @@ class Sorter():
         # define callbacks
         early_stopping_callback = EarlyStopping(
             monitor='val_loss',
-            patience=10,
+            patience=5,
             verbose=0,
             mode="auto",
         )
@@ -126,31 +128,79 @@ class Sorter():
 
         model.save_weights(self.save_weights_path)
 
-    def detect(self, weights=None, filenames=[]):
-        if weights is None:
-            raise ValueError("学習済み weights を指定してください")
+    def evaluate(self):
+        if self.validation_dir == "":
+            raise ValueError("validation_dir に画像が入ったディレクトリへのパスを入力してください")
 
-        model = self.model(weights)
+        img_rows = self.img_rows
+        img_cols = self.img_cols
+        classes = self.classes
+        n_classes = len(classes)
+        channels = self.channels
+        batch_size = self.batch_size
+        n_epoch = self.n_epoch
+
+        n_val_samples = self._count_files(self.validation_dir)
+
+        print(n_val_samples)
+
+
+        validationImageGenerator = ImageDataGenerator(
+            rescale = 1 / 255,
+#            samplewise_std_normalization=True,
+#            samplewise_center=True,
+        )
+
+        validation_generator = validationImageGenerator.flow_from_directory(
+            directory=self.validation_dir,
+            target_size=(img_rows, img_cols),
+            color_mode='rgb',
+            classes=classes,
+            class_mode='categorical',
+            batch_size=batch_size,
+            shuffle=True
+        )
+
+        if self.finetuning_weights_path:
+            model = self.model(weights_path=self.finetuning_weights_path)
+        else:
+            model = self.model()
+
+        # tuning
+        history = model.evaluate_generator(
+            validation_generator,
+            steps=n_val_samples
+        )
+
+        print("accuracy: {}".format(history[1]))
+
+    def preload_model(self):
+        self.__preloaded_model = self.model(self.finetuning_weights_path)
+
+        return self.__preloaded_model
+
+    def detect(self, filename=""):
+        if self.__preloaded_model is None:
+            model = self.preload_model()
+        else:
+            model = self.__preloaded_model
 
         classes = self.classes
 
-        x_set = []
-        for fn in filenames:
-            img = load_img(fn, target_size=(300, 300))
-            x = img_to_array(img)
-            # x = np.expand_dims(x, axis=0)
-            x = x / 255
-            x_set.append(x)
+        img = load_img(filename, target_size=(300, 300))
+        x = img_to_array(img)
+        # x = np.expand_dims(x, axis=0)
+        x = x / 255
 
-        x = np.asarray(x_set)
+        x = np.asarray([x])
         pred = model.predict(x)[0]
 
         top = pred.argsort()[::-1][0]
 
-        print(classes[top])
+        return classes[top]
 
 
-    def model(self, weights_path=None):
+    def model(self, weights_path=None, n_freeze=20):
         img_rows = self.img_rows
         img_cols = self.img_cols
         classes = self.classes
@@ -177,15 +227,17 @@ class Sorter():
         # freeze weights
         # https://github.com/danielvarga/keras-finetuning/blob/master/train.py
         # how_many = 172
-        how_many = 30
+        how_many = n_freeze
         for layer in model.layers[:how_many]:
             layer.trainable = False
         for layer in model.layers[how_many:]:
             layer.trainable = True
 
         # compile
+        lr = 1e-4 / 2
+        momentum = 0.9
         model.compile(loss='categorical_crossentropy',
-                                  optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
+                                  optimizer=optimizers.SGD(lr=lr, momentum=momentum),
                                     metrics=['accuracy'])
 
 
@@ -208,19 +260,26 @@ class Sorter():
 
     def _preprocess(self, tensor):
         # ランダムに色味を変化
-        s_range = 0.2
-        v_range = 40
+        #h_range = 0.05
+        h_range = 0.01
+        #s_range = 0.4
+        s_range = 0.1
+        #v_range = 60
+        v_range = 20
 
         # HSVに変化 [0~1, 0~1, 0~255], dtype=float32
         tensor_hsv = rgb_to_hsv(tensor)
-#        print("tensor_hsv {}".format(tensor_hsv))
         tt = tensor_hsv.T
         h = tt[0]
         s = tt[1]
         v = tt[2]
 
+        # 色相を変化 -h_range - s_range の間
+        # clipして 0 - 1 の間からはみださないように
+        h = np.clip(h + (random() * (h_range * 2) - h_range), 0, 1)
+
         # 彩度を変化 -s_range ~ s_range の間
-        # clipして0 ~ 1の間からはみ出さないようにする
+        # 同上
         s = np.clip(s + (random() * (s_range * 2) - s_range), 0, 1)
 
         # 明度を変化

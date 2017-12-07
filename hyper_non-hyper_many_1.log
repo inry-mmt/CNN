@@ -1,0 +1,62 @@
+(ml) bioinfo@bioinfo-Z170-S01:~/ml/data/hyper_mutation/scripts/CNN$ python train_hyper.py
+Using TensorFlow backend.
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcublas.so.8.0 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcudnn.so.5 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcufft.so.8.0 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcurand.so.8.0 locally
+31808
+3999
+Found 31808 images belonging to 2 classes.
+Found 3999 images belonging to 2 classes.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE3 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
+I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:910] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: GeForce GTX 1080
+major: 6 minor: 1 memoryClockRate (GHz) 1.7715
+pciBusID 0000:01:00.0
+Total memory: 7.92GiB
+Free memory: 7.17GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0)
+/mnt/d/hyper_mutation/scripts/CNN/sorter_inceptionV3.py:124: UserWarning: Update your `fit_generator` call to the Keras 2 API: `fit_generator(<keras.pre..., validation_data=<keras.pre..., callbacks=[<keras.ca..., steps_per_epoch=1060, epochs=100, validation_steps=3999)`
+  callbacks=[tensorboard_callback, early_stopping_callback],
+Epoch 1/100
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 2284 get requests, put_count=2248 evicted_count=1000 eviction_rate=0.44484 and unsatisfied allocation rate=0.497373
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 100 to 110
+  10/1060 [..............................] - ETA: 926s - loss: 2.3727 - acc: 0.4333I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 2292 get requests, put_count=2359 evicted_count=1000 eviction_rate=0.423908 and unsatisfied allocation rate=0.417103
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 256 to 281
+  24/1060 [..............................] - ETA: 659s - loss: 1.5624 - acc: 0.5014I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 4576 get requests, put_count=4585 evicted_count=1000 eviction_rate=0.218103 and unsatisfied allocation rate=0.229458
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 655 to 720
+1060/1060 [==============================] - 1422s - loss: 0.5243 - acc: 0.7561 - val_loss: 0.5355 - val_acc: 0.7306
+Epoch 2/100
+1060/1060 [==============================] - 1497s - loss: 0.3268 - acc: 0.8576 - val_loss: 0.4345 - val_acc: 0.8281
+Epoch 3/100
+1060/1060 [==============================] - 1516s - loss: 0.2524 - acc: 0.8966 - val_loss: 0.4382 - val_acc: 0.8465
+Epoch 4/100
+1060/1060 [==============================] - 1487s - loss: 0.2080 - acc: 0.9154 - val_loss: 0.4540 - val_acc: 0.8509
+Epoch 5/100
+1060/1060 [==============================] - 1541s - loss: 0.1781 - acc: 0.9305 - val_loss: 0.5034 - val_acc: 0.8249
+Epoch 6/100
+1060/1060 [==============================] - 1483s - loss: 0.1572 - acc: 0.9386 - val_loss: 0.4778 - val_acc: 0.8415
+Epoch 7/100
+1060/1060 [==============================] - 1536s - loss: 0.1393 - acc: 0.9459 - val_loss: 0.5132 - val_acc: 0.8578
+Epoch 8/100
+1060/1060 [==============================] - 1536s - loss: 0.1192 - acc: 0.9538 - val_loss: 0.4720 - val_acc: 0.8691
+Epoch 9/100
+1060/1060 [==============================] - 1576s - loss: 0.1109 - acc: 0.9594 - val_loss: 0.5211 - val_acc: 0.8667
+Epoch 10/100
+1060/1060 [==============================] - 1576s - loss: 0.1007 - acc: 0.9624 - val_loss: 0.4892 - val_acc: 0.8732
+Epoch 11/100
+1060/1060 [==============================] - 1558s - loss: 0.0926 - acc: 0.9649 - val_loss: 0.5621 - val_acc: 0.8654
+Epoch 12/100
+1060/1060 [==============================] - 1583s - loss: 0.0869 - acc: 0.9679 - val_loss: 0.4945 - val_acc: 0.8752
+Epoch 13/100
+1060/1060 [==============================] - 1571s - loss: 0.0773 - acc: 0.9705 - val_loss: 0.5693 - val_acc: 0.8644
+
