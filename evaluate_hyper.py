@@ -25,7 +25,7 @@ def main():
         sorter = Sorter(
             classes=classes,
             validation_dir=validation_dir,
-            finetuning_weights_path="./hyper_non-hyper_many_zvalued_1205.h5",
+            finetuning_weights_path="./hyper_non-hyper_many_zvalued_1211.h5",
             img_size=(300, 300),
         )
 
