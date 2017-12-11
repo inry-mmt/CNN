@@ -3,12 +3,15 @@ from sorter_inceptionV3 import Sorter
 def main():
     classes = ["hyper", "non-hyper"]
     validation_dirs = [
-        "/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1129/kobetsu/G-18-13",
-        "/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1129/kobetsu/2014-07859-12",
-        "/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1129/kobetsu/2015-01937-3-4",
-        "/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1129/kobetsu/G-12-2",
-        "/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1129/kobetsu/G-13-3",
-        "/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1129/kobetsu/NC-26",
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/G-13-3',
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/NC-26',
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/G-11-8',
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/NC-17',
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/G-12-2',
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/G-18-13',
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/2014-07859-12',
+        '/home/bioinfo/ml/data/hyper_mutation/source/hyper_non-hyper_171031.1205/kobetsu/2015-01937-3-4',
+
         #"/media/bioinfo/fatdata/tumor_tiles_zvalue/auto(evaluation_format)/10-6259-30"
     ]
 
@@ -22,7 +25,7 @@ def main():
         sorter = Sorter(
             classes=classes,
             validation_dir=validation_dir,
-            finetuning_weights_path="./hyper_non-hyper_many_zvalued_1.h5",
+            finetuning_weights_path="./hyper_non-hyper_many_zvalued_1205.h5",
             img_size=(300, 300),
         )
 
