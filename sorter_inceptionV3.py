@@ -128,8 +128,8 @@ class Sorter():
 
         model.save_weights(self.save_weights_path)
 
-    def evaluate(self):
-        if self.validation_dir == "":
+    def evaluate(self, validation_dirs=None):
+        if self.validation_dir == "" and validation_dirs is None:
             raise ValueError("validation_dir に画像が入ったディレクトリへのパスを入力してください")
 
         img_rows = self.img_rows
@@ -140,39 +140,69 @@ class Sorter():
         batch_size = self.batch_size
         n_epoch = self.n_epoch
 
-        n_val_samples = self._count_files(self.validation_dir)
-
-        print(n_val_samples)
-
-
-        validationImageGenerator = ImageDataGenerator(
-            rescale = 1 / 255,
-#            samplewise_std_normalization=True,
-#            samplewise_center=True,
-        )
-
-        validation_generator = validationImageGenerator.flow_from_directory(
-            directory=self.validation_dir,
-            target_size=(img_rows, img_cols),
-            color_mode='rgb',
-            classes=classes,
-            class_mode='categorical',
-            batch_size=batch_size,
-            shuffle=True
-        )
-
         if self.finetuning_weights_path:
             model = self.model(weights_path=self.finetuning_weights_path)
         else:
             model = self.model()
 
-        # tuning
-        history = model.evaluate_generator(
-            validation_generator,
-            steps=n_val_samples
-        )
+        if validation_dirs is None:
+            n_val_samples = self._count_files(self.validation_dir)
+            print(n_val_samples)
 
-        print("accuracy: {}".format(history[1]))
+            validationImageGenerator = ImageDataGenerator(
+                rescale = 1 / 255,
+    #            samplewise_std_normalization=True,
+    #            samplewise_center=True,
+            )
+
+            validation_generator = validationImageGenerator.flow_from_directory(
+                directory=self.validation_dir,
+                target_size=(img_rows, img_cols),
+                color_mode='rgb',
+                classes=classes,
+                class_mode='categorical',
+                batch_size=batch_size,
+                shuffle=True
+            )
+
+            # tuning
+            history = model.evaluate_generator(
+                validation_generator,
+                steps=n_val_samples
+            )
+
+            print("accuracy: {}".format(history[1]))
+
+        else:
+            for val_dir in validation_dirs:
+                n_val_samples = self._count_files(val_dir)
+                print(val_dir)
+                print(n_val_samples)
+
+                validationImageGenerator = ImageDataGenerator(
+                    rescale = 1 / 255,
+        #            samplewise_std_normalization=True,
+        #            samplewise_center=True,
+                )
+
+                validation_generator = validationImageGenerator.flow_from_directory(
+                    directory=val_dir,
+                    target_size=(img_rows, img_cols),
+                    color_mode='rgb',
+                    classes=classes,
+                    class_mode='categorical',
+                    batch_size=batch_size,
+                    shuffle=True
+                )
+
+                # tuning
+                history = model.evaluate_generator(
+                    validation_generator,
+                    steps=n_val_samples
+                )
+
+                print("accuracy: {}".format(history[1]))
+
 
     def preload_model(self):
         self.__preloaded_model = self.model(self.finetuning_weights_path)
@@ -260,12 +290,15 @@ class Sorter():
 
     def _preprocess(self, tensor):
         # ランダムに色味を変化
-        #h_range = 0.05
-        h_range = 0.01
-        #s_range = 0.4
-        s_range = 0.1
-        #v_range = 60
-        v_range = 20
+        h_range = 0.05
+        #h_range = 0.01
+        #h_range = 0
+        s_range = 0.4
+        #s_range = 0.1
+        #s_range = 0
+        v_range = 60
+        #v_range = 20
+        #v_range = 0
 
         # HSVに変化 [0~1, 0~1, 0~255], dtype=float32
         tensor_hsv = rgb_to_hsv(tensor)
